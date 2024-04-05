@@ -34,3 +34,8 @@ Ok(serial_buf) => {
 #### Conceptual
 <p>When the app launches a new thread is made and a connection is attempted. If the connection fails / stops / needs restarted there is a Tauri command to retry (preferably the same one that is used on app launch).</p>
 <p>Data is formatted via the struct / json / I don't care. Then passed to the frontend as an event.</p>
+
+#### Technical
+- [] Function that reads the data (don't want it to be my main.rs)
+- [] Function that parses the data out
+- [] Function that sends data to the frontend

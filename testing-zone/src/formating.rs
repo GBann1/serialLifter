@@ -33,4 +33,5 @@ fn decode_data(data: &[u8]) -> RSData {
 // Function to print the data after it has been parsed
 fn print_data(data: RSData) {
     println!("{}", data.weight);
+    // emit.to_frontend(data)
 }
