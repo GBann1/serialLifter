@@ -1,14 +1,20 @@
 # No clue
 
+##### Expected
+<p>How it should look with all of the data displayed (see "straight_docs.rs"):</p>
+<img style="max-width: 300px" src="image-3.png"/>
+** Note: Multidigit weight values & G for Gross weight that don't exist via other methods 
+
+##### Actual
 When I compile using the manual code one of three things happens:
 1. It compiles, opens the port, reads in the polarity, 4 spaces, the last digit of the weight value (12 -> 2) and the unit, gross/net, and motion / stable.
-![alt text](image-2.png)
+<img style="max-width: 300px" src="image-2.png"/>
 
 2. It compiles, opens the port, and then does nothing. no code is ever printed and no error messages ever pop up.
-![alt text](image-1.png)
+<img style="max-width: 300px" src="image-1.png"/>
 
 3. It compiles, opens the port, immediately crashes with the message of invalid utf-8 character. (the stream is in hexadecimal)
-![alt text](image.png)
+<img style="max-width: 300px" src="image.png"/>
 
 
 ## Current Issue
