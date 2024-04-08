@@ -29,9 +29,3 @@ fn decode_data(data: &[u8]) -> RSData {
     // It would be nice to convert these to their end data types here
     rsdata
   }
-
-// Function to print the data after it has been parsed
-fn print_data(data: RSData) {
-    println!("{}", data.weight);
-    // emit.to_frontend(data)
-}
