@@ -1,54 +1,58 @@
-<script setup>
-import {ref} from 'vue';
-import {listen} from '@tauri-apps/api/event';
-const dataReading = ref("");
-listen('new_reading', (event) => {
-  dataReading = event.payload;
-})
-</script>
-
 <template>
   <div class="container">
-    <h1>Welcome to Tauri!</h1>
-    <p>{{ dataReading }}</p>
-    <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
-    </div>
-
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
-
-    <p>
-      Recommended IDE setup:
-      <a href="https://code.visualstudio.com/" target="_blank">VS Code</a>
-      +
-      <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-      +
-      <a href="https://github.com/tauri-apps/tauri-vscode" target="_blank"
-        >Tauri</a
-      >
-      +
-      <a href="https://github.com/rust-lang/rust-analyzer" target="_blank"
-        >rust-analyzer</a
-      >
-    </p>
-
+    <h1>Welcome to Serial Lifter!</h1>
+    <button @click="open_port" style="max-width: 150px; margin: auto;">Open Port</button>
+    <p style="font-size: 36pt;">Weight:</p>
+    <p :style="{fontSize: '72pt', color: validReading ? 'green' : 'white' }">{{ scaleWeight }}</p>
+    <p :style="{fontSize: '58pt'}">{{ highscore }}</p>
   </div>
 </template>
 
-<style scoped>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
+
+<script setup>
+import {ref} from 'vue';
+import {listen} from '@tauri-apps/api/event';
+import {invoke} from '@tauri-apps/api/core';
+
+const open_port = async () => {
+  try{
+    await invoke('start_port_listen');
+    console.log('Port opened');
+  }catch(err){
+    console.log('Port not opened', err);
+  }
+}
+open_port();
+const dataReading = ref("");
+const scaleWeight = ref(0);
+const validReading = ref(false);
+const highscore = ref(0);
+
+// listen for events coming from the backend
+listen('new_reading', (event) => {
+  dataReading.value = event.payload;
+  parseReading(dataReading.value);
+})
+
+const parseReading = (reading) => {
+  reading = reading.slice(1).replace(/\s/g,''); // the STX leading bit was causing issues
+  const regex = /([0-9]+)/i;
+  const match = regex.exec(reading);
+  if (match) {
+    scaleWeight.value = parseInt(match[1]);
+    if (scaleWeight.value > highscore.value){
+      highscore.value = scaleWeight.value;
+    }
+  } else {
+    scaleWeight.value = 0;
+  }
+  // Checks if scale is in motion and determines the color of text
+  if (reading[reading.length -1] === 'M'){
+    validReading.value = false;
+  } else {
+    validReading.value = true;
+  }
+
 }
 
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #249b73);
-}
-</style>
+</script>

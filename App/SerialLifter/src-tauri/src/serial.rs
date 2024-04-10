@@ -1,18 +1,17 @@
-use serialport::SerialPort;
+use serialport::{DataBits, SerialPort};
 use std::time::Duration;
+use std::thread;
 use std::io::{self, BufReader, BufRead};
-use tauri::AppHandle;
-
+use tauri::{Manager, AppHandle};
 
 pub fn read_data(port: &mut Box<dyn SerialPort>, app: AppHandle) -> Result<(), io::Error> {
     let mut reader = BufReader::new(port);
     let mut line = String::new();
     let mut stored_reading = String::new();
-
     loop {
-        let bytes_ = reader.read_line(&mut line)?;
-        if line != stored_reading && _bytes == 16 {
-            app.emit("new_reading", Some(line.clone()));
+        let _bytes = reader.read_line(&mut line)?;
+        if line != stored_reading {
+            let _ = app.emit("new_reading", Some(line.clone())).unwrap();
             stored_reading = line.clone();
         }
         line.clear();
@@ -20,15 +19,17 @@ pub fn read_data(port: &mut Box<dyn SerialPort>, app: AppHandle) -> Result<(), i
 }
 
 pub fn setup_connection(app: AppHandle) {
+    // Change these for your scale
     let port_name = "COM9";
     let baud_rate = 1200;
     println!("Connecting on {} with {} baud.", &port_name, &baud_rate);
 
     match serialport::new(port_name, baud_rate)
-        .data_bits(DataBits::Eight)
+        .timeout(Duration::from_millis(80))
+        // .data_bits(DataBits::Eight)
         .open(){
             Ok(mut port) => {
-                let _ = read_data(&mut port);
+                let _ = read_data(&mut port, app);
             },
             Err(e) => {
                 eprintln!("Error: {}", e);
